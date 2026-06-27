@@ -35,17 +35,19 @@ initDB();
 app.get('/', (req: Request, res: Response) => {
   // res.send('Hello World!');
   res.status(200).json({
+    success: true,
     "message": "express server",
     "author": "next level",
   });
 });
-app.post('/', async (req: Request, res: Response) => {
+app.post('/api/users', async (req: Request, res: Response) => {
   //console.log(req.body);
   const { name, email, password, age } = req.body;
   try {
     const result = await pool.query(`INSERT INTO users( name, email, password, age) VALUES($1, $2, $3, $4) RETURNING * `, [name, email, password, age]);
     //  console.log(result);
     res.status(201).json({
+      success: true,
       // message: "User created successfully!",
       data: result.rows[0],
     });
@@ -55,6 +57,54 @@ app.post('/', async (req: Request, res: Response) => {
        error: error,
     });
 
+  }
+});
+
+app.get('/api/users' , async(req: Request, res: Response) =>{
+  try {
+    const result = await pool.query(`SELECT * FROM users`);
+    res.status(200).json({
+      success: true,
+      message:"User retrived successfully!!",
+      data: result.rows,
+    });
+    
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message:error.message,
+      error: error,
+    });
+    
+  }
+});
+
+app.get('/api/users/:id', async(req:Request, res:Response)=>{
+  const {id} = req.params;
+  console.log(id);
+  try {
+     const result = await pool.query(`SELECT * FROM users WHERE id=$1`,[id]);
+     console.log(result);
+     if(result.rows.length === 0){
+      res.status(500).json({
+      success: false,
+      message:'user not found!',
+      data:{},
+    });
+     }
+         res.status(200).json({
+      success: true,
+      message:"Individual user retrived successfully!!",
+      data: result.rows,
+    });
+    
+  } catch (error:any) {
+        res.status(500).json({
+      success: false,
+      message:error.message,
+      error: error,
+    });
+    
   }
 });
 
