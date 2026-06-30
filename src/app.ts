@@ -5,10 +5,8 @@ const app: Application = express(); //This invokes (calls) that function. When e
 app.use(express.json());
 
 
-
-
 app.get('/', (req: Request, res: Response) => {
-  // res.send('Hello World!');
+
   res.status(200).json({
     success: true,
     "message": "express server",

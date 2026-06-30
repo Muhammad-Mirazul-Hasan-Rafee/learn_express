@@ -1,13 +1,14 @@
 import { Pool } from "pg";
 import config from "../config";
 
-export  const pool = new Pool({
+export const pool = new Pool({
   connectionString: config.CONNECTIVITYSTR,
 });
 
 export const initDB = async () => {
   try {
     await pool.query(`
+      
       CREATE TABLE IF NOT EXISTS 
       users(
        id SERIAL PRIMARY KEY,
@@ -19,10 +20,24 @@ export const initDB = async () => {
        create_At TIMESTAMP DEFAULT NOW(), 
        update_At TIMESTAMP DEFAULT NOW() )
       
-      `)
+      `);
+
+    await pool.query(`
+CREATE TABLE IF NOT EXISTS profiles(
+    id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    bio TEXT,
+    address TEXT,
+    phone VARCHAR(11),
+    gender VARCHAR(10),
+    create_At TIMESTAMP DEFAULT NOW(),
+    update_At TIMESTAMP DEFAULT NOW())
+`);
     console.log('Created db successfully')
   }
-  catch (error) {
-    console.log(error);
-  }
+  catch (error: any) {
+  console.error("Error creating tables:");
+  console.error(error.message);
+  console.error(error);
+}
 };
